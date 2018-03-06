@@ -61,10 +61,21 @@ for grp in group_keys:
     cnt_result['{}_property_cnt'.format(grp)] = category_tmp.groupby(grp)['item_property'].nunique()
 
     results = pd.concat([cnt_result, statistics_results], axis=1).reset_index()
-    concat = concat.merge(results, how='left', on=grp).fillna(0)
+    concat = concat.merge(results, how='left', on=grp)
+
+gender_cnt = concat.groupby(['user_gender_id']).user_id.nunique().to_frame()
+gender_cnt.columns = ['user_gender_id_user_id_cnt']
+concat = concat.merge(gender_cnt, how='left', on='user_gender_id')
+
+age_cnt = concat.groupby(['user_age_level']).user_id.nunique().to_frame()
+age_cnt.columns = ['user_age_level_user_id_cnt']
+concat = concat.merge(age_cnt, how='left', on='user_age_level')
+
+occupation_cnt = concat.groupby(['user_occupation_id']).user_id.nunique().to_frame()
+occupation_cnt.columns = ['user_occupation_id_user_id_cnt']
+concat = concat.merge(occupation_cnt, how='left', on='user_occupation_id')
 
 print('Finish basic count, Concat shape:', concat.shape)
-
 
 # ================================================
 #                saving

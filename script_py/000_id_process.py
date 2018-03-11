@@ -14,6 +14,13 @@ from sklearn.preprocessing import LabelEncoder
 train = pd.read_csv('../input/round1_ijcai_18_train_20180301.txt', delimiter=' ')
 test = pd.read_csv('../input/round1_ijcai_18_test_a_20180301.txt', delimiter=' ')
 
+train = train.drop_duplicates('instance_id').copy()
+
+instance_encoder = LabelEncoder()
+instance_encoder.fit(train.instance_id)
+
+train['instance_id'] = instance_encoder.transform(train.instance_id)
+
 # ================================================
 #             item pre-processing
 # ================================================
@@ -35,9 +42,9 @@ test_item_category.fillna('missing', inplace=True)
 train.drop('item_category_list', axis=1, inplace=True)
 test.drop('item_category_list', axis=1, inplace=True)
 
-# train 与 test中的类目一致，只有一种一级类目，从属的二级类目有13种，三级类目较少，只有两种
-print(train_item_category['item_category_0'].nunique())
-print(train_item_category['item_category_1'].nunique())
+# # train 与 test中的类目一致，只有一种一级类目，从属的二级类目有13种，三级类目较少，只有两种
+# print(train_item_category['item_category_0'].nunique())
+# print(train_item_category['item_category_1'].nunique())
 
 # item property
 train_item_property = train['item_property_list'].str.split(';', expand=True).add_prefix('item_property_')

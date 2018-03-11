@@ -8,6 +8,8 @@
 import numpy as np
 import pandas as pd
 
+from tqdm import tqdm
+
 train = pd.read_pickle('../processed/train_test/train_id_processed.p')
 test = pd.read_pickle('../processed/train_test/test_id_processed.p')
 
@@ -39,7 +41,7 @@ item_prop = ['item_property_{}'.format(i) for i in range(100)]
 concat = train.append(test)
 print('Concat shape:', concat.shape)
 
-for grp in group_keys:
+for grp in tqdm(group_keys):
     cnt_result = concat.groupby(grp)[cnt_cols].nunique()
     cnt_result = cnt_result.add_prefix(grp + '_').add_suffix('_cnt')
 
@@ -63,16 +65,16 @@ for grp in group_keys:
     results = pd.concat([cnt_result, statistics_results], axis=1).reset_index()
     concat = concat.merge(results, how='left', on=grp)
 
-gender_cnt = concat.groupby(['user_gender_id']).user_id.nunique().to_frame()
-gender_cnt.columns = ['user_gender_id_user_id_cnt']
+gender_cnt = concat.groupby(['user_gender_id']).user_id.nunique().reset_index()
+gender_cnt.columns = ['user_gender_id', 'user_gender_id_user_id_cnt']
 concat = concat.merge(gender_cnt, how='left', on='user_gender_id')
 
-age_cnt = concat.groupby(['user_age_level']).user_id.nunique().to_frame()
-age_cnt.columns = ['user_age_level_user_id_cnt']
+age_cnt = concat.groupby(['user_age_level']).user_id.nunique().reset_index()
+age_cnt.columns = ['user_age_level', 'user_age_level_user_id_cnt']
 concat = concat.merge(age_cnt, how='left', on='user_age_level')
 
-occupation_cnt = concat.groupby(['user_occupation_id']).user_id.nunique().to_frame()
-occupation_cnt.columns = ['user_occupation_id_user_id_cnt']
+occupation_cnt = concat.groupby(['user_occupation_id']).user_id.nunique().reset_index()
+occupation_cnt.columns = ['user_occupation_id', 'user_occupation_id_user_id_cnt']
 concat = concat.merge(occupation_cnt, how='left', on='user_occupation_id')
 
 print('Finish basic count, Concat shape:', concat.shape)
@@ -84,5 +86,5 @@ print('Finish basic count, Concat shape:', concat.shape)
 feature_columns = [col for col in list(concat) if
                    col.endswith(('cnt', 'min', 'median', 'mean', 'max', 'std', 'skew'))]
 
-concat[:len(train)][['instance_id'] + feature_columns].to_pickle('../features/train_test/train_feature_101.p')
-concat[len(train):][['instance_id'] + feature_columns].to_pickle('../features/train_test/test_feature_101.p')
+concat[:len(train)][['instance_id'] + feature_columns].to_pickle('../features/train_feature_101.p')
+concat[len(train):][['instance_id'] + feature_columns].to_pickle('../features/test_feature_101.p')

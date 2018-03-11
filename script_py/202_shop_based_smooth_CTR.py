@@ -9,12 +9,11 @@ import pandas as pd
 from function_utils import BayesianSmoothing
 from tqdm import tqdm
 
-columns = ['instance_id', 'user_id', 'user_gender_id', 'user_age_level', 'user_occupation_id',
-           'user_star_level', 'context_date_day']
+columns = ['instance_id', 'shop_id', 'shop_review_num_level', 'shop_star_level', 'context_date_day']
 train = pd.read_pickle('../processed/train_test/train_id_processed.p')[columns + ['is_trade']]
 test = pd.read_pickle('../processed/train_test/test_id_processed.p')[columns]
 
-for feat_1 in ['user_gender_id', 'user_age_level', 'user_occupation_id', 'user_star_level', 'user_id']:
+for feat_1 in ['shop_review_num_level', 'shop_star_level', 'shop_id']:
 
     print(feat_1)
 
@@ -32,9 +31,9 @@ for feat_1 in ['user_gender_id', 'user_age_level', 'user_occupation_id', 'user_s
         count['context_date_day'] = day
         res = res.append(count, ignore_index=True)
 
-    # only smooth user_id here, cause user_id has a high cardinality
-    if feat_1 == 'user_id':
-        print('smoothing user_id')
+    # only smooth shop_id here, cause user_id has a high cardinality
+    if feat_1 == 'shop_id':
+        print('smoothing shop_id')
         bs = BayesianSmoothing(1, 1)
         bs.update(res[feat_1 + '_all'].values, res[feat_1 + '_1'].values, 1000, 0.001)
         res[feat_1 + '_smooth'] = (res[feat_1 + '_1'] + bs.alpha) / (res[feat_1 + '_all'] + bs.alpha + bs.beta)
@@ -45,9 +44,9 @@ for feat_1 in ['user_gender_id', 'user_age_level', 'user_occupation_id', 'user_s
     train = train.merge(res, how='left', on=[feat_1, 'context_date_day'])
     test = test.merge(res, how='left', on=[feat_1, 'context_date_day'])
 
-    if feat_1 == 'user_id':
-        train['user_id_smooth'] = train['user_id_smooth'].fillna(value=bs.alpha / (bs.alpha + bs.beta))
-        test['user_id_smooth'] = test['user_id_smooth'].fillna(value=bs.alpha / (bs.alpha + bs.beta))
+    if feat_1 == 'shop_id':
+        train['shop_id_smooth'] = train['shop_id_smooth'].fillna(value=bs.alpha / (bs.alpha + bs.beta))
+        test['shop_id_smooth'] = test['shop_id_smooth'].fillna(value=bs.alpha / (bs.alpha + bs.beta))
 
     train[feat_1 + '_rate'] = train[feat_1 + '_rate'].fillna(value=0)
     test[feat_1 + '_rate'] = test[feat_1 + '_rate'].fillna(value=0)
@@ -60,5 +59,5 @@ for feat_1 in ['user_gender_id', 'user_age_level', 'user_occupation_id', 'user_s
 feature_columns = [col for col in list(train) if
                    col.endswith(('_1', '_all', '_smooth', '_rate'))]
 
-train[['instance_id'] + feature_columns].to_pickle('../features/train_feature_102.p')
-test[['instance_id'] + feature_columns].to_pickle('../features/test_feature_102.p')
+train[['instance_id'] + feature_columns].to_pickle('../features/train_feature_202.p')
+test[['instance_id'] + feature_columns].to_pickle('../features/test_feature_202.p')

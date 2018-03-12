@@ -38,7 +38,12 @@ stat_cols = ['item_price_level', 'item_sales_level', 'item_collected_level', 'it
              'shop_score_delivery', 'shop_score_description', 'context_page_id']
 item_prop = ['item_property_{}'.format(i) for i in range(100)]
 
+
 concat = train.append(test)
+
+for col in group_keys:
+    concat[col] = concat[col].fillna(-1)
+
 print('Concat shape:', concat.shape)
 
 for grp in tqdm(group_keys):

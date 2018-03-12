@@ -26,13 +26,13 @@ test.replace(-1, np.nan, inplace=True)
 #               basic count
 # ================================================
 
-# TODO: transform other shop features to bins, and calculate the following features
-group_keys = ['shop_id', 'shop_review_num_level', 'shop_star_level']
+group_keys = ['item_id', 'item_brand_id', 'item_city_id',
+              'item_price_level', 'item_sales_level', 'item_collected_level', 'item_pv_level']
 
-cnt_cols = ['user_occupation_id', 'user_id', 'instance_id', 'item_id', 'item_brand_id', 'item_city_id']
-stat_cols = ['item_price_level', 'item_sales_level', 'item_collected_level', 'item_pv_level',
-             'user_age_level', 'user_star_level',
-             'context_page_id']
+cnt_cols = ['user_occupation_id', 'user_id', 'instance_id', 'shop_id']
+stat_cols = ['user_age_level', 'user_star_level', 'context_page_id',
+             'shop_review_num_level', 'shop_review_positive_rate', 'shop_star_level',
+             'shop_score_service', 'shop_score_delivery', 'shop_score_description']
 
 concat = train.append(test)
 
@@ -71,13 +71,25 @@ for grp in tqdm(group_keys):
     concat = concat.merge(results, how='left', on=grp)
 
 
-review_cnt = concat.groupby(['shop_review_num_level']).shop_id.nunique().reset_index()
-review_cnt.columns = ['shop_review_num_level', 'shop_review_num_level_shop_id_cnt']
-concat = concat.merge(review_cnt, how='left', on='shop_review_num_level')
+brand_cnt = concat.groupby(['item_brand_id']).item_id.nunique().reset_index()
+brand_cnt.columns = ['item_brand_id', 'item_brand_id_item_id_cnt']
+concat = concat.merge(brand_cnt, how='left', on='item_brand_id')
 
-star_level_cnt = concat.groupby(['shop_star_level']).shop_id.nunique().reset_index()
-star_level_cnt.columns = ['shop_star_level', 'shop_star_level_shop_id_cnt']
-concat = concat.merge(star_level_cnt, how='left', on='shop_star_level')
+city_cnt = concat.groupby(['item_city_id']).item_id.nunique().reset_index()
+city_cnt.columns = ['item_city_id', 'item_city_id_item_id_cnt']
+concat = concat.merge(city_cnt, how='left', on='item_city_id')
+
+price_cnt = concat.groupby(['item_price_level']).item_id.nunique().reset_index()
+price_cnt.columns = ['item_price_level', 'item_price_level_item_id_cnt']
+concat = concat.merge(price_cnt, how='left', on='item_price_level')
+
+collected_cnt = concat.groupby(['item_collected_level']).item_id.nunique().reset_index()
+collected_cnt.columns = ['item_collected_level', 'item_collected_level_item_id_cnt']
+concat = concat.merge(collected_cnt, how='left', on='item_collected_level')
+
+pv_cnt = concat.groupby(['item_pv_level']).item_id.nunique().reset_index()
+pv_cnt.columns = ['item_pv_level', 'item_pv_level_item_id_cnt']
+concat = concat.merge(pv_cnt, how='left', on='item_pv_level')
 
 print('Finish basic count, Concat shape:', concat.shape)
 
@@ -89,5 +101,5 @@ print('Finish basic count, Concat shape:', concat.shape)
 feature_columns = [col for col in list(concat) if
                    col.endswith(('cnt', 'min', 'median', 'mean', 'max', 'std', 'skew'))]
 
-concat[:len(train)][['instance_id'] + feature_columns].to_pickle('../features/train_feature_201.p')
-concat[len(train):][['instance_id'] + feature_columns].to_pickle('../features/test_feature_201.p')
+concat[:len(train)][['instance_id'] + feature_columns].to_pickle('../features/train_feature_301.p')
+concat[len(train):][['instance_id'] + feature_columns].to_pickle('../features/test_feature_301.p')

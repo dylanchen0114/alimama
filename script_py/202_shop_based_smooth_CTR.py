@@ -31,7 +31,7 @@ for feat_1 in ['shop_review_num_level', 'shop_star_level', 'shop_id']:
         count['context_date_day'] = day
         res = res.append(count, ignore_index=True)
 
-    # only smooth shop_id here, cause user_id has a high cardinality
+    # only smooth shop_id here
     if feat_1 == 'shop_id':
         print('smoothing shop_id')
         bs = BayesianSmoothing(1, 1)

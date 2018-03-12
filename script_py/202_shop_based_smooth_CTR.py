@@ -20,7 +20,7 @@ for feat_1 in ['shop_review_num_level', 'shop_star_level', 'shop_id']:
     res = pd.DataFrame()
     temp = train[[feat_1, 'context_date_day', 'is_trade']]
 
-    for day in tqdm(range(18, 25)):
+    for day in tqdm(range(18, 26)):
         count = temp.groupby([feat_1]).apply(lambda x: x['is_trade'][(x['context_date_day'] < day).values].count()).\
             reset_index(name=feat_1 + '_all')
         count1 = temp.groupby([feat_1]).apply(lambda x: x['is_trade'][(x['context_date_day'] < day).values].sum()).\

@@ -43,6 +43,8 @@ bs = BayesianSmoothing(1, 1)
 bs.update(res['item_category_1' + '_all'].values, res['item_category_1' + '_1'].values, 1000, 0.001)
 res['item_category_1' + '_smooth'] = (res['item_category_1' + '_1'] + bs.alpha) / \
                                      (res['item_category_1' + '_all'] + bs.alpha + bs.beta)
+print('item_category_1', bs.alpha, bs.beta)
+# item_category_1 2.16580301337 66.9451051993
 
 # conversion rate
 res['item_category_1' + '_rate'] = res['item_category_1' + '_1'] / res['item_category_1' + '_all']
@@ -76,6 +78,8 @@ bs = BayesianSmoothing(1, 1)
 bs.update(res['item_property' + '_all'].values, res['item_property' + '_1'].values, 1000, 0.001)
 res['item_property' + '_smooth'] = (res['item_property' + '_1'] + bs.alpha) / \
                                    (res['item_property' + '_all'] + bs.alpha + bs.beta)
+print('item_property', bs.alpha, bs.beta)
+# item_property 1.64590875636 66.3808687381
 
 # conversion rate
 res['item_property' + '_rate'] = res['item_property' + '_1'] / res['item_property' + '_all']

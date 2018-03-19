@@ -39,41 +39,41 @@ def to_pickles(df, path, split_size=3):
 
     return
 
-train = pd.read_pickle('../processed/train_test/train_id_processed.p')
-# test = pd.read_pickle('../processed/train_test/test_id_processed.p')
-
-train_feats = pd.read_csv('../features/all/train_concat_all.csv')
-# test_feats = pd.read_csv('../features/all/test_concat_all.csv')
-
-train = train.merge(train_feats, how='left', on='instance_id')
-
-valid = train[train.context_date_day == 24].copy()
-train = train[train.context_date_day < 24].copy()
-
-drop_columns = ['instance_id', 'context_id', 'context_date',
-                'context_date_day', 'context_date_hour',
-                'item_id', 'item_brand_id', 'item_city_id', 'user_id', 'shop_id']
-train.drop(drop_columns, axis=1, inplace=True)
-valid.drop(drop_columns, axis=1, inplace=True)
-
-embedding_features = ['user_gender_id', 'user_occupation_id']
-
-for col in embedding_features:
-    train[col] = train[col].astype('category')
-    valid[col] = valid[col].astype('category')
-
-
-train_y = train['is_trade'].reset_index(drop=True).copy()
-train = train.reset_index(drop=True).drop('is_trade', axis=1)
-
-valid_y = valid['is_trade'].reset_index(drop=True).copy()
-valid = valid.reset_index(drop=True).drop('is_trade', axis=1)
-
-train_y.to_pickle('../processed/train_test/train_y.p')
-to_pickles(df=train, path='../processed/train_test/train_x/')
-
-valid_y.to_pickle('../processed/train_test/valid_y.p')
-valid.to_pickle('../processed/train_test/valid_x.p')
+# train = pd.read_pickle('../processed/train_test/train_id_processed.p')
+# # test = pd.read_pickle('../processed/train_test/test_id_processed.p')
+#
+# train_feats = pd.read_csv('../features/all/train_concat_all.csv')
+# # test_feats = pd.read_csv('../features/all/test_concat_all.csv')
+#
+# train = train.merge(train_feats, how='left', on='instance_id')
+#
+# valid = train[train.context_date_day == 24].copy()
+# train = train[train.context_date_day < 24].copy()
+#
+# drop_columns = ['instance_id', 'context_id', 'context_date',
+#                 'context_date_day', 'context_date_hour',
+#                 'item_id', 'item_brand_id', 'item_city_id', 'user_id', 'shop_id']
+# train.drop(drop_columns, axis=1, inplace=True)
+# valid.drop(drop_columns, axis=1, inplace=True)
+#
+# embedding_features = ['user_gender_id', 'user_occupation_id']
+#
+# for col in embedding_features:
+#     train[col] = train[col].astype('category')
+#     valid[col] = valid[col].astype('category')
+#
+#
+# train_y = train['is_trade'].reset_index(drop=True).copy()
+# train = train.reset_index(drop=True).drop('is_trade', axis=1)
+#
+# valid_y = valid['is_trade'].reset_index(drop=True).copy()
+# valid = valid.reset_index(drop=True).drop('is_trade', axis=1)
+#
+# train_y.to_pickle('../processed/train_test/train_y.p')
+# to_pickles(df=train, path='../processed/train_test/train_x/')
+#
+# valid_y.to_pickle('../processed/train_test/valid_y.p')
+# valid.to_pickle('../processed/train_test/valid_x.p')
 
 
 #####################################################
@@ -104,9 +104,9 @@ params = {
 
     'learning_rate': 0.02,
 
-    'num_leaves': 60,
-    'max_depth': 20,
-    'min_data_in_leaf': 100,
+    'num_leaves': 100,
+    'max_depth': 15,
+    'min_data_in_leaf': 1000,
 
     'feature_fraction': 0.6,
     'bagging_fraction': 0.6,

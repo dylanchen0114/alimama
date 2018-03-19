@@ -45,17 +45,18 @@ train = train.merge(train_feats, how='left', on='instance_id')
 test = test.merge(test_feats, how='left', on='instance_id')
 
 test_id = test['instance_id']
-drop_columns = ['instance_id', 'context_id', 'context_date', 'context_date_day', 'context_date_hour']
+drop_columns = ['instance_id', 'context_id', 'context_date',
+                'context_date_day', 'context_date_hour',
+                'item_id', 'item_brand_id', 'item_city_id', 'user_id', 'shop_id']
 train.drop(drop_columns, axis=1, inplace=True)
 test.drop(drop_columns, axis=1, inplace=True)
 
-embedding_features = ['item_id', 'item_brand_id', 'item_city_id',
-                      'user_id', 'user_gender_id', 'user_occupation_id',
-                      'shop_id']
+embedding_features = ['user_gender_id', 'user_occupation_id']
 
 for col in embedding_features:
     train[col] = train[col].astype('category')
     test[col] = test[col].astype('category')
+
 
 train_y = train['is_trade'].reset_index(drop=True).copy()
 train = train.reset_index(drop=True).drop('is_trade', axis=1)
@@ -69,7 +70,7 @@ test.drop(['context_timestamp'], axis=1, inplace=True)
 
 train_data = lgb.Dataset(train, label=train_y)
 
-num_rounds = 256
+num_rounds = 299
 
 params = {
     'boosting_type': 'gbdt',  # np.random.choice(['dart', 'gbdt']),
@@ -79,9 +80,9 @@ params = {
 
     'learning_rate': 0.02,
 
-    'num_leaves': 60,
-    'max_depth': 20,
-    'min_data_in_leaf': 100,
+    'num_leaves': 100,
+    'max_depth': 15,
+    'min_data_in_leaf': 1000,
 
     'feature_fraction': 0.6,
     'bagging_fraction': 0.6,
@@ -113,4 +114,37 @@ feature_importance.to_csv('../full_train_feat_importance.csv', index=False)
 pred_test = gbm.predict(test)
 test_sub = pd.DataFrame({'instance_id': test_id, 'predicted_score': pred_test})
 
-test_sub.to_csv('../lgb_%.5f_logloss.csv' % trn_loss, index=False)
+test_sub.to_csv('../lgb_%.5f_logloss.txt' % trn_loss, index=False, sep=' ', line_terminator='\n')
+
+
+
+
+
+
+
+# num_rounds = 299
+#
+# params = {
+#     'boosting_type': 'gbdt',  # np.random.choice(['dart', 'gbdt']),
+#     'objective': 'binary',
+#     'metric': ['binary_logloss'],
+#     'max_bin': 256,
+#
+#     'learning_rate': 0.02,
+#
+#     'num_leaves': 100,
+#     'max_depth': 15,
+#     'min_data_in_leaf': 1000,
+#
+#     'feature_fraction': 0.6,
+#     'bagging_fraction': 0.6,
+#     'bagging_freq': 1,
+#
+#     'lambda_l1': 0,
+#     'lambda_l2': 0,
+#     'min_gain_to_split': 0.0,
+#     'min_sum_hessian_in_leaf': 0,
+#
+#     'verbose': 1,
+#     'is_training_metric': 'True'
+# }

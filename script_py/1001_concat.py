@@ -7,8 +7,25 @@
 
 from glob import glob
 
+import numpy as np
 import pandas as pd
 from tqdm import tqdm
+
+
+def to_pickles(df, path, split_size=3):
+    """
+    path = '../output/mydf'
+
+    wirte '../output/mydf/0.p'
+          '../output/mydf/1.p'
+          '../output/mydf/2.p'
+
+    """
+
+    for i in tqdm(range(split_size)):
+        df.ix[df.index % split_size == i].to_pickle(path + '/{}.p'.format(i))
+
+    return
 
 
 def read_pickles(path, index):
@@ -88,10 +105,20 @@ tmp_feat = tmp_feat.groupby(['instance_id', 'context_date_day'])['item_property_
 tmp_feat.columns = ['_'.join(col).strip() for col in tmp_feat.columns.values]
 tmp_feat = tmp_feat.reset_index()
 
-train_feats = train_feats.merge(tmp_feat.drop('context_date_day', axis=1), how='left', on='instance_id')
-test_feats = test_feats.merge(tmp_feat.drop('context_date_day', axis=1), how='left', on='instance_id')
+train_feats = train_feats.merge(tmp_feat, how='left', on='instance_id')
+test_feats = test_feats.merge(tmp_feat, how='left', on='instance_id')
 
+rate_cols = ['user_gender_id_rate', 'user_age_level_rate', 'user_occupation_id_rate',
+             'user_star_level_rate', 'user_id_rate', 'shop_review_num_level_rate',
+             'shop_star_level_rate', 'shop_id_rate', 'item_city_id_rate', 'item_price_level_rate',
+             'item_sales_level_rate', 'item_collected_level_rate', 'item_pv_level_rate',
+             'item_id_rate', 'item_brand_id_rate', 'item_category_1_rate']
+
+for col in rate_cols:
+    train_feats.loc[train_feats.context_date_day == 18, col] = np.nan
+    train_feats[col] = train_feats[col].fillna(np.nanmean(train_feats[col]))
 
 # saving
-train_feats.to_csv('../features/all/train_concat_all.csv', index=None)
-test_feats.to_csv('../features/all/test_concat_all.csv', index=None)
+to_pickles(df=train_feats, path='../features/all/train/', split_size=5)
+to_pickles(df=test_feats, path='../features/all/test/')
+

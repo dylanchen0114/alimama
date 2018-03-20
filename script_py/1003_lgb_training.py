@@ -38,8 +38,10 @@ def to_pickles(df, path, split_size=3):
 train = pd.read_pickle('../processed/train_test/train_id_processed.p')
 test = pd.read_pickle('../processed/train_test/test_id_processed.p')
 
-train_feats = pd.read_csv('../features/all/train_concat_all.csv')
-test_feats = pd.read_csv('../features/all/test_concat_all.csv')
+train_feats = read_pickles('../features/all/train/')
+train_feats.drop(['context_date_day', 'context_date'], axis=1, inplace=True)
+test_feats = read_pickles('../features/all/test/')
+test_feats.drop(['context_date_day', 'context_date'], axis=1, inplace=True)
 
 train = train.merge(train_feats, how='left', on='instance_id')
 test = test.merge(test_feats, how='left', on='instance_id')
@@ -65,12 +67,12 @@ train = train.reset_index(drop=True).drop('is_trade', axis=1)
 #               Model Training
 #####################################################
 
-train.drop(['context_timestamp'], axis=1, inplace=True)
-test.drop(['context_timestamp'], axis=1, inplace=True)
+train.drop(['context_timestamp', 'item_category_1'], axis=1, inplace=True)
+test.drop(['context_timestamp', 'item_category_1'], axis=1, inplace=True)
 
 train_data = lgb.Dataset(train, label=train_y)
 
-num_rounds = 299
+num_rounds = 396
 
 params = {
     'boosting_type': 'gbdt',  # np.random.choice(['dart', 'gbdt']),
@@ -101,7 +103,7 @@ params = {
 gbm = lgb.train(params, train_data, num_boost_round=num_rounds, valid_sets=[train_data],
                 early_stopping_rounds=250, verbose_eval=50)
 
-pred_train = gbm.predict(train, num_iteration=256)
+pred_train = gbm.predict(train)
 trn_loss = log_loss(y_pred=pred_train, y_true=train_y)
 trn_auc = roc_auc_score(y_score=pred_train, y_true=train_y)
 
@@ -119,7 +121,7 @@ test_sub.to_csv('../lgb_%.5f_logloss.txt' % trn_loss, index=False, sep=' ', line
 
 
 
-
+ 
 
 
 # num_rounds = 299
@@ -148,3 +150,5 @@ test_sub.to_csv('../lgb_%.5f_logloss.txt' % trn_loss, index=False, sep=' ', line
 #     'verbose': 1,
 #     'is_training_metric': 'True'
 # }
+
+# 0.08160

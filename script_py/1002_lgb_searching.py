@@ -13,8 +13,6 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from sklearn.metrics import roc_auc_score
-
 
 def read_pickles(path, col=None):
     if col is None:
@@ -42,7 +40,8 @@ def to_pickles(df, path, split_size=3):
 # train = pd.read_pickle('../processed/train_test/train_id_processed.p')
 # # test = pd.read_pickle('../processed/train_test/test_id_processed.p')
 #
-# train_feats = pd.read_csv('../features/all/train_concat_all.csv')
+# train_feats = read_pickles('../features/all/train/')
+# train_feats.drop(['context_date_day', 'context_date'], axis=1)
 # # test_feats = pd.read_csv('../features/all/test_concat_all.csv')
 #
 # train = train.merge(train_feats, how='left', on='instance_id')
@@ -86,8 +85,14 @@ train_y = pd.read_pickle('../processed/train_test/train_y.p')
 valid = pd.read_pickle('../processed/train_test/valid_x.p')
 valid_y = pd.read_pickle('../processed/train_test/valid_y.p')
 
-train.drop(['context_timestamp'], axis=1, inplace=True)
-valid.drop(['context_timestamp'], axis=1, inplace=True)
+# feat_importance = pd.read_csv('../feat_importance.csv')
+# feature_name = feat_importance['name'].values
+# feature_importance = feat_importance['importance'].values
+#
+# drop_col = feature_name[feature_importance < 10].tolist()
+
+train.drop(['context_timestamp', 'item_category_1'], axis=1, inplace=True)
+valid.drop(['context_timestamp', 'item_category_1'], axis=1, inplace=True)
 
 train_data = lgb.Dataset(train, label=train_y)
 valid_data = lgb.Dataset(valid, label=valid_y, reference=train_data)
@@ -104,9 +109,9 @@ params = {
 
     'learning_rate': 0.02,
 
-    'num_leaves': 100,
+    'num_leaves': 70,
     'max_depth': 15,
-    'min_data_in_leaf': 1000,
+    'min_data_in_leaf': 500,
 
     'feature_fraction': 0.6,
     'bagging_fraction': 0.6,

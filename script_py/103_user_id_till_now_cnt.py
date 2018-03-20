@@ -15,6 +15,8 @@ train = pd.read_pickle('../processed/train_test/train_id_processed.p')
 test = pd.read_pickle('../processed/train_test/test_id_processed.p')
 
 concat = train.append(test)
+concat = concat.sort_values('context_date')
+
 user_list = concat.user_id.values
 
 
@@ -29,6 +31,8 @@ for i in tqdm(range(len(concat))):
 
 concat['user_till_now_cnt'] = user_till_now_cnt
 
+train_feat = train[['instance_id']].merge(concat[['instance_id', 'user_till_now_cnt']], how='left', on='instance_id')
+test_feat = test[['instance_id']].merge(concat[['instance_id', 'user_till_now_cnt']], how='left', on='instance_id')
 
-concat[:len(train)][['instance_id', 'user_till_now_cnt']].to_pickle('../features/train_feature_103.p')
-concat[len(train):][['instance_id', 'user_till_now_cnt']].to_pickle('../features/test_feature_103.p')
+train_feat.to_pickle('../features/train_feature_103.p')
+test_feat.to_pickle('../features/test_feature_103.p')

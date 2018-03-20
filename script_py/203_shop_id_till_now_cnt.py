@@ -15,8 +15,9 @@ train = pd.read_pickle('../processed/train_test/train_id_processed.p')
 test = pd.read_pickle('../processed/train_test/test_id_processed.p')
 
 concat = train.append(test)
-shop_list = concat.shop_id.values
+concat = concat.sort_values('context_date')
 
+shop_list = concat.shop_id.values
 
 # till_now count
 shop_dict = defaultdict(lambda: 0)
@@ -30,5 +31,8 @@ for i in tqdm(range(len(concat))):
 concat['shop_till_now_cnt'] = shop_till_now_cnt
 
 
-concat[:len(train)][['instance_id', 'shop_till_now_cnt']].to_pickle('../features/train_feature_203.p')
-concat[len(train):][['instance_id', 'shop_till_now_cnt']].to_pickle('../features/test_feature_203.p')
+train_feat = train[['instance_id']].merge(concat[['instance_id', 'shop_till_now_cnt']], how='left', on='instance_id')
+test_feat = test[['instance_id']].merge(concat[['instance_id', 'shop_till_now_cnt']], how='left', on='instance_id')
+
+train_feat.to_pickle('../features/train_feature_203.p')
+test_feat.to_pickle('../features/test_feature_203.p')

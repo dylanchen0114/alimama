@@ -109,9 +109,9 @@ params = {
 
     'learning_rate': 0.02,
 
-    'num_leaves': 70,
+    'num_leaves': 100,
     'max_depth': 15,
-    'min_data_in_leaf': 500,
+    'min_data_in_leaf': 1000,
 
     'feature_fraction': 0.6,
     'bagging_fraction': 0.6,

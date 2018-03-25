@@ -1,0 +1,3 @@
+date,name,feat_cnt,type,learning_rate,num_leaf,max_depth,min_data_in_leaf,feat_frac,sub-sample,bag_fre,l1,l2,min_gain_to_split,min_sum_hessian_in_leaf,0,bst_round,train-logloss,valid-logloss,online
+2018/3/22 1:16,LightGBM_baseline_context_prob,1164,gbdt,0.02,100,15,1000,0.6,0.6,1,0.00E+00,0.00E+00,0.00E+00,0.00E+00,0.00E+00,397,0.08326,0.0865,0.08111
+2018/3/25 18:32,LightGBM_new_validation_method_prob,1164,gbdt,0.02,100,15,1000,0.6,0.6,1,0.00E+00,0.00E+00,0.00E+00,0.00E+00,0.00E+00,575,0.06938,0.07636,
